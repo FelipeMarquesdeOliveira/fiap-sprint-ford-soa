@@ -1,0 +1,349 @@
+# Ford FIAP 2026: Kick-off do Projeto
+
+Ford & Flap: Dados na Prática
+Conectando estudantes de tecnologia a desafios reais de negócios
+
+O programa une a excelência acadêmica da FIAP com a operação da Ford.
+Líderes trazem cases focados em dados para otimizar decisões operacionais e melhorar a experiência do cliente.
+
+## Regras do Projeto
+
+- OS GRUPOS DEVEM SER FORMADOS DE 3 A 5 INTEGRANTES, NO MÁXIMO.
+- OS GRUPOS DEVEM SER FORMADOS POR ALUNOS DA MESMA TURMA.
+- NÃO É POSSÍVEL TROCAR DE GRUPO DURANTE A CHALLENGE NO MESMO SEMESTRE.
+- AS TROCAS PODEM OCORRER NA VIRADA DE SEMESTRE SOB ANÁLISE DO SCRUM MASTER.
+
+Em caso de dúvidas, entre em CONTATO
+SCRUM MASTER: Prof. Yan Coelho
+
+## Cronograma de entrega - SPRINT
+
+- Data de ENTREGA – Via tarefas Teams.
+- 24/05/26
+- Obs.: Teremos apenas uma SPRINT neste semestre.
+
+---
+
+# Desafio 01
+
+## Inteligência Competitiva Automotiva
+
+Compreender o valor percebido pelo cliente em relação à concorrência exige dados precisos e extremamente organizados.
+O mercado automotivo atual demanda a rápida compreensão de como os veículos concorrentes se posicionam em termos de preço e pacotes de equipamentos oferecidos.
+
+### DESAFIO - DIRECIONAL DO PROJETO
+
+**O que deve ser criado**
+
+Desenvolver uma ferramenta / modelo / solução que permita receber dados técnicos da concorrência a partir de uma entrada simples e gerar uma lista padronizada de especificações.
+A abordagem técnica é livre (IA, modelos híbridos, regras, automação, outras soluções).
+
+**Entradas obrigatórias**
+
+A ferramenta deve permitir que o usuário defina livremente a lista de equipamentos / atributos técnicos que deseja pesquisar. Juntamente com:
+
+- Marca
+- Modelo
+- Versão
+
+**Saída obrigatória**
+
+Uma lista de especificações técnicas
+
+- O formato da lista deve ser sempre o mesmo, independentemente do veículo
+- Os campos devem ser claros, organizados e comparáveis
+- Caso alguma informação não exista, isso deve ficar explícito (ex: vazio / não disponível)
+
+**Validação da solução**
+
+Para validar se a solução funciona corretamente:
+
+- Utilizem a Ford Ranger Raptor
+- A solução deve conseguir entregar corretamente todas as especificações técnicas apresentadas no slide da Ranger Raptor
+- Se os dados forem entregues de forma clara, organizada e consistente, entendemos que a solução está operando corretamente
+
+---
+
+# Desafio 02
+
+## Impulsionando o VIN Share na América do Sul com Soluções Inteligentes
+
+Reter clientes no serviço de pós-venda é crucial para o sucesso e a sustentabilidade do negócio.
+O indicador-chave é o VIN Share, que representa a porcentagem de veículos Ford que utilizam a rede oficial para manutenções.
+
+Criar ferramentas e metodologias que permitam às concessionárias:
+
+### Análise e Visualização de Dados:
+
+- Desenvolver dashboards e relatórios interativos que permitam a granularidade do Service Share por concessionária, modelo de veículo, idade do veículo, tipo de serviço e outras variáveis relevantes.
+- Identificar padrões, tendências e anomalias no comportamento de serviço dos clientes em nível de concessionária.
+
+### Geração de Leads e Modelagem Preditiva
+
+- Propor algoritmos ou modelos preditivos que identifiquem veículos com alta probabilidade de precisar de serviço ou que estejam em risco de sair da rede Ford.
+- Desenvolver sistemas para gerar leads de serviço proativos e personalizados para as concessionárias, utilizando dados de veículos conectados, histórico de manutenção, status da garantia e outras fontes disponíveis.
+
+### Otimização da Jornada do Cliente
+
+- Sugira como a Ford pode usar esses insights para otimizar as comunicações com os clientes, lembretes de serviço e ofertas, visando aumentar o agendamento de serviços.
+- Projetar soluções que integrem dados de diferentes fontes para criar uma visão 360 graus do cliente e do veículo, facilitando uma experiência pós-venda mais fluida e personalizada.
+
+---
+
+# SPRINTS
+
+## PRIMEIRO SEMESTRE
+
+- Neste semestre, teremos apenas uma sprint, que valerá para as notas 1 e 2.
+- Entendemos que algumas disciplinas terão maior relevância na produção do projeto. Por isso, apenas algumas farão parte das entregas avaliativas. As demais disciplinas terão sua média baseada nas notas dessas entregas.
+
+## DISCIPLINAS
+
+- Arquitetura orientada a Servicos e web services.
+- Mobile Development and IoT.
+- Testing, compliance and Quality Assurance.
+- Cybersecurity
+- INTELIGÊNCIA ARTIFICIAL & MACHINE LEARNING
+
+---
+
+# SPRINT - ARQUITETURA ORIENTADA A SERVICOS E WEB SERVICES
+
+### Integração por Web Services (50%)
+
+- o Desenho de arquitetura contendo os componentes que pretendem usar (10%)
+- o Implementação de APIs RESTful ou SOAP para comunicação entre sistemas (20%)
+- o Uso adequado de métodos HTTP (10%)
+- o Documentação das APIs com README ou Swagger como um contrato com os endpoints (10%)
+
+### Arquitetura Orientada a Serviços (SOA) (20%)
+
+- o Organização modular baseada em serviços independentes e reutilizáveis (10%)
+- o Separação clara entre camadas de apresentação, serviço e dados (10%)
+
+### Padrões e Boas Práticas (15%)
+
+- o Adoção de padrões como REST, SOAP, JSON, XML, WSDL (8%)
+- o Tratamento adequado de erros e exceções nos serviços (7%)
+
+### Conexão com banco de dados (15%)
+
+- o Dependências e configurações para conexão (8%)
+- o Controle de migrações (7%)
+
+---
+
+# SPRINT - MOBILE DEVELOPMENT AND IOT
+
+- Cada equipe irá desenvolver uma solução mobile que responda a um dos desafios propostos pela Ford, utilizando React Native com Expo como tecnologia principal. O objetivo é criar uma aplicação funcional que consuma dados relevantes — seja de APIs externas, datasets simulados ou serviços próprios — e entregue valor direto ao usuário final, seja ele um analista interno da Ford ou um cliente da rede de concessionárias.
+- A entrega esperada é um aplicativo mobile multiplataforma (iOS e Android) que apresente uma interface clara, navegação intuitiva e integração com pelo menos uma fonte de dados externa via API. A solução deve demonstrar domínio dos conceitos trabalhados em aula, incluindo componentes React Native, gerenciamento de estado, navegação com Expo Router e consumo de APIs assíncronas. Funcionalidades como notificações, armazenamento local ou integração com sensores do dispositivo serão consideradas diferenciais.
+- A avaliação levará em conta a qualidade técnica da implementação, a consistência da experiência do usuário e a aderência ao problema de negócio proposto pela Ford. O app deve ser capaz de demonstrar, de forma clara e funcional, como a solução contribui para o desafio escolhido — seja na inteligência competitiva automotiva (Desafio 1) ou na retenção e fidelização de clientes no pós-venda (Desafio 2).
+- Equipes que apresentarem prototipagem visual consistente, código organizado e uma narrativa clara de produto serão melhor avaliadas.
+- Os detalhes sobre formato de entrega, critérios de avaliação e datas de apresentação serão divulgados pelo professor da disciplina. Dúvidas sobre escopo técnico devem ser tratadas nas aulas de Mobile Development & IoT.
+
+---
+
+# SPRINT - TESTING, COMPLIANCE AND QUALITY ASSURANCE
+
+### Pitch de projeto, com a síntese da proposta de solução para o desafio colocado:
+
+- Detalhe: nome do projeto e identificação da equipe
+- Qual o problema a resolver
+- Indique se o desafio a resolver é algo exclusivo do parceiro da FIAP ou é um problema presente em diversas empresas e, nesse segundo caso, traga estatísticas e dados sobre o tamanho desse problema/desafio
+- Qual solução está sendo proposta (descrição em linhas gerais dos objetivos e recursos/requisitos que a solução vai atender)
+- Avaliação de soluções que já existem no mercado e oferecem recursos semelhantes a sua proposta (benchmarking para avaliação da competitividade da sua solução)
+- Explicação das diferenciações competitivas da sua solução
+- Aponte os passos (roadmap de etapas) previstos no seu projeto (o que pretende produzir e entregar na Sprint 3 e 4)
+
+Incluir também:
+
+- Quais são os critérios de qualidade da solução proposta (ex: performance, segurança, usabilidade)
+- Quais são os principais riscos da solução e seus impactos no negócio
+- Quais métricas serão utilizadas para avaliar o sucesso da solução (ex: tempo de resposta, disponibilidade, satisfação do usuário)
+
+### Quadro Business Canvas, explicando como a solução impacta a cadeia de valor da empresa parceira
+
+Use uma ferramenta de CANVAS (várias gratuitas estão disponíveis na WEB) e explique:
+
+- Quem são os clientes
+- Quais os canais que você vai oferecer para relacionamento e entrega do produto para o cliente
+- Qual o valor agregado do produto (que benefícios ele traz)
+- Quais as principais atividades core (coração) que você precisa realizar e a empresa parceira da FIAP precisará realizar para operar a solução quando entregue
+- Quais são os recursos (pessoas/competências, infraestrutura) que você precisa para realizar o projeto e as operações do software uma vez entregue
+- Que empresas/tecnologias parceiras (de terceiros) você usarão
+- Quais são os fatores geradores de custo do projeto e da operação pós-projeto
+- Quais são as fontes de receita ou redução de custos que a solução trará
+
+Incluir também:
+
+- Análise dos impactos de falhas da solução na cadeia de valor (operacionais, financeiros e reputacionais)
+- Os custos associados à qualidade (retrabalho, manutenção, suporte e incidentes em produção)
+
+### Quadro de valor, mostrando quais são as partes interessadas e o que ganham com o projeto
+
+Apresente o stakeholder (podem ser vários); o que ele espera do projeto/solução; o que a solução promete entregar; qual a métrica/indicador de avaliação de resultado que vai ser usado para confirmar se o objetivo foi atingido e qual a prioridade de cada entrega/benefício prometido.
+
+Para cada benefício apresentado, incluir obrigatoriamente:
+
+- Uma métrica de negócio (ex: aumento de produtividade, redução de custos)
+- Uma métrica de qualidade (ex: tempo de resposta, disponibilidade, confiabilidade)
+
+---
+
+# SPRINT - TESTING, COMPLIANCE AND QUALITY ASSURANCE
+
+### Arquitetura da solução no padrão TOGAF/Archi
+
+Desenho feito na ferramenta Archi, seguindo o padrão de arquitetura TOGAF, que mostre:
+
+- A Visão da Arquitetura (perspectiva estratégica e de requisitos do projeto)
+- Arquitetura de negócio (representação da mudança no processo da empresa parceira com a utilização da nova solução)
+- Arquitetura de sistema (representação dos componentes de software e suas comunicações previstas)
+- Arquitetura de tecnologia (com detalhes da infraestrutura necessária)
+
+Incluir também:
+
+- Como a arquitetura proposta contribui para a qualidade da solução (ex: organização dos componentes, separação de responsabilidades, facilidade de manutenção)
+- Quais mecanismos serão utilizados para acompanhamento da solução em produção (ex: monitoramento básico, indicadores de uso e desempenho)
+
+### DETALHES SOBRE FORMATOS DE ENTREGA SERÃO APRESENTADOS PELO SEU PROFESSOR DA DISCIPLINA:
+
+Entrega em grupo (até 5 alunos):
+
+- Apresentação (10–15 slides, com nome e RM no slide 1)
+- Vídeo de pitch de até 3 minutos (link no slide 1)
+- Arquivo de arquitetura no Archi (.archimate)
+
+A apresentação deve conter Pitch, Canvas, Quadro de Valor e Arquitetura. Todos os integrantes devem participar do vídeo. Enviar tudo junto pelo Teams. Clareza e organização serão consideradas na avaliação.
+
+---
+
+# SPRINT - CYBERSECURITY
+
+### 1. Segurança de Entrada e Validação de Dados — 20 pontos
+
+- Validação de entradas do usuário
+- Sanitização contra SQL Injection, XSS, command injection e entradas malformadas.
+- Normalização e validação de parâmetros de API
+- Garantir que marca, modelo, versão e atributos sigam padrões definidos.
+- Limitação de tamanho e formato de entrada
+- Prevenir ataques de payload flooding e buffer overflow.
+- Tratamento seguro de erros
+- Mensagens não podem revelar stack trace, estrutura interna ou tecnologia usada.
+
+### 2. Autenticação e Autorização — 20 pontos
+
+- Implementação de autenticação segura (JWT, OAuth2, etc.)
+- Tokens com expiração, assinatura forte e renovação controlada.
+- Controle de acesso baseado em papéis (RBAC)
+- Diferenciar permissões entre analistas, administradores e usuários comuns.
+
+### 3. Proteção de APIs e Serviços — 20 pontos
+
+- Uso obrigatório de HTTPS/TLS 1.2+
+- Criptografia ponta a ponta entre app, API e serviços externos.
+- Rate limiting and throttling
+- Evita abuso, scraping excessivo e DoS.
+- CORS configurado corretamente
+- Permitir apenas domínios autorizados.
+- Assinatura/verificação de integridade de payloads (5 pts)
+- Previne manipulação de dados em trânsito.
+
+### 4. Segurança de Dados e Privacidade — 25 pontos
+
+- Criptografia de dados sensíveis em repouso
+- Informações de clientes, leads e histórico de manutenção.
+- Política de retenção e descarte seguro
+- Dados antigos devem ser removidos ou anonimizados.
+- Anonimização/pseudonimização de dados pessoais
+- Especialmente para modelos de ML e dashboards.
+- Proteção contra exposição acidental de dados
+- Evitar logs sensíveis, dumps e endpoints não documentados.
+
+### 5. Monitoramento, Logs e Auditoria — 15 pontos
+
+- Logs estruturados e seguros
+- Sem dados sensíveis, com rastreabilidade.
+- Monitoramento de eventos suspeitos
+- Tentativas de acesso indevido, falhas repetidas, anomalias.
+- Trilha de auditoria para ações críticas
+- Alterações de configuração, criação de leads, consultas massivas
+
+---
+
+# SPRINT - INTELIGÊNCIA ARTIFICIAL & MACHINE LEARNING
+
+## Segmentação e Classificação de Clientes: Ford (Dados Sintéticos)
+
+A Ford deseja aumentar a retenção de clientes na rede oficial de manutenção, ou seja, aumentar a probabilidade de que um cliente retorne às concessionárias e oficinas autorizadas ao longo do ciclo de vida do veículo. O principal desafio desse problema é que, no momento da compra, ainda não se conhece o comportamento futuro do cliente. Dessa forma, o projeto propõe o uso de técnicas analíticas para identificar padrões de comportamento e, posteriormente, prever esses padrões utilizando apenas informações iniciais.
+
+O trabalho será dividido em duas frentes complementares:
+
+1. **Etapa de segmentação comportamental**: utilizando técnicas de aprendizado não supervisionado sobre dados históricos completos, com o objetivo de identificar perfis reais de clientes.
+2. **Etapa de modelagem preditiva**: na qual os perfis encontrados serão transformados em uma variável-alvo e um modelo supervisionado será treinado para prever, no momento da compra, a qual perfil um novo cliente provavelmente pertence.
+
+Os dados utilizados neste trabalho são sintéticos, ou seja, foram gerados artificialmente para simular um cenário real de negócio. Apesar disso, eles foram construídos de forma a refletir padrões plausíveis de comportamento de clientes. As bases de dados podem ser obtidas diretamente com o professor da disciplina.
+
+Do ponto de vista de negócio, foi levantada uma hipótese inicial de segmentação contendo quatro perfis principais:
+
+- **Cliente fiel**: aquele que retorna consistentemente para realizar manutenção na rede oficial, independentemente de fatores como preço ou conveniência.
+- **Cliente de abandono**: aquele que realiza no máximo a primeira revisão e rapidamente deixa a rede, buscando alternativas externas mais baratas.
+- **Cliente esquecido**: aquele que perde o timing da manutenção, tenta retornar depois e acaba se frustrando com a marca.
+- **Cliente econômico**: mantém algum relacionamento com a rede, mas é altamente sensível a preço, promoções e condições comerciais.
+
+É importante destacar que esses perfis são apenas uma hipótese simulada, e cabe ao grupo verificar se os dados sustentam essa estrutura.
+
+### Bases de Dados
+
+O trabalho utilizará duas bases distintas:
+
+- **Base 1**: contém o histórico completo dos clientes, incluindo informações observadas após a compra do veículo, e deve ser utilizada exclusivamente para a etapa de segmentação, pois permite identificar padrões reais de comportamento.
+- **Base 2**: contém apenas informações disponíveis no momento da compra e deve ser utilizada na etapa de classificação preditiva, simulando o cenário real em que a concessionária precisa tomar decisões sem conhecer o futuro do cliente.
+
+### Regra Crítica
+
+Existe uma regra crítica no projeto: na etapa de classificação, é terminantemente proibido utilizar qualquer variável que represente comportamento futuro do cliente. Isso inclui informações como revisões realizadas, tempo até manutenção, gastos ou qualquer indicador pós-compra. O uso dessas variáveis caracteriza data leakage e invalida completamente o modelo. Portanto, a modelagem supervisionada deve ser feita exclusivamente com variáveis disponíveis no momento da compra.
+
+### Etapas do Trabalho
+
+1. **Preparação dos dados**: análise exploratória, tratamento de valores faltantes, inconsistências e variáveis categóricas.
+
+2. **Segmentação dos clientes** (Base 1):
+   - Escolha e justificativa das variáveis
+   - Aplicação de técnicas de clustering
+   - Definição do número de segmentos
+   - Análise, interpretação e tradução em perfis de negócio claros (evitar nomenclaturas genéricas como "Cluster 0" ou "Cluster 1")
+
+3. **Proposta de estratégias de retenção** para cada segmento, demonstrando coerência entre comportamento observado e ação sugerida.
+
+4. **Transformação dos clusters em variável-alvo** para classificação supervisionada.
+
+5. **Modelagem preditiva** (Base 2):
+   - Tratamento de variáveis
+   - Separação de treino e teste
+   - Avaliação com métricas adequadas (accuracy, precision, recall, F1-score e matriz de confusão)
+
+6. **Leitura executiva dos resultados**:
+   - Quais segmentos foram identificados
+   - Quais apresentam maior risco de evasão
+   - Quais são mais sensíveis a ações comerciais
+   - Quão bem o modelo consegue prever o perfil de novos clientes
+   - Como essa solução poderia ser aplicada no dia a dia da concessionária
+
+### Entregáveis Finais
+
+- Jupyter Notebook (.ipynb) contendo todo o desenvolvimento técnico
+- Relatório em PDF com os principais achados
+
+### Não Serão Aceitos
+
+- Trabalhos que utilizem variáveis futuras na classificação
+- Misturem indevidamente as bases
+- Apresentem clusters sem interpretação de negócio
+- Tragam conclusões sem suporte analítico
+
+---
+
+# ATENÇÃO!!!
+
+- A nota da challenge é a média das entregas e TODAS as disciplinas recebem essa nota. (É informação sobre os challenges 1 e 2 — foi escolhido o segundo (2))
