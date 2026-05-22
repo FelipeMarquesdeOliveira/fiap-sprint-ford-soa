@@ -70,7 +70,9 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         Map<String, String> body = new HashMap<>();
-        ex.getDetailMessageArguments();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                body.put(error.getField(), error.getDefaultMessage())
+        );
         return body;
     }
 }
