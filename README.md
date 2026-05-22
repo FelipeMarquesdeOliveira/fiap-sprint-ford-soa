@@ -1,56 +1,56 @@
 # VIN Share API - Ford FIAP 2026
 
-API RESTful para análise e predição de VIN Share na rede de concessionárias Ford.
+API RESTful para analise e predicao de VIN Share na rede de concessionarias Ford.
 
-## 📋 Descrição do Projeto
+## Descricao do Projeto
 
-Este projeto foi desenvolvido como parte do programa **Ford & FIAP 2026**, com o objetivo de ajudar a Ford a aumentar a retenção de clientes na rede oficial de manutenção, através de:
+Este projeto foi desenvolvido como parte do programa **Ford & FIAP 2026**, com o objetivo de ajudar a Ford a aumentar a retencao de clientes na rede oficial de manutencao, atraves de:
 
-- **Análise de VIN Share**: Cálculo do percentual de veículos Ford que utilizam a rede oficial para manutenções
-- **Identificação de Clientes em Risco**: Predição de clientes com alta probabilidade de deixar a rede
-- **Dashboard Gerencial**: Visualização de métricas por concessionária, região e indicadores gerais
+- **Analise de VIN Share**: Calculo do percentual de veiculos Ford que utilizam a rede oficial para manutencoes
+- **Identificacao de Clientes em Risco**: Predicao de clientes com alta probabilidade de deixar a rede
+- **Dashboard Gerencial**: Visualizacao de metricas por concessionaria, regiao e indicadores gerais
 
-## 🏗️ Arquitetura
+## Arquitetura
 
-O projeto segue os princípios de **Arquitetura Orientada a Serviços (SOA)** com separação clara em camadas:
+O projeto segue os principios de **Arquitetura Orientada a Servicos (SOA)** com separacao clara em camadas:
 
 ```
 src/main/java/br/com/ford/vinshare/
-├── controller/          # Camada de apresentação (APIs REST)
-├── domain/             # Camada de negócio (entidades, repositórios, DTOs)
+├── controller/          # Camada de apresentacao (APIs REST)
+├── domain/             # Camada de negocio (entidades, repositorios, DTOs)
 │   ├── concessionaria/
 │   ├── cliente/
 │   ├── veiculo/
 │   ├── servico/
 │   └── vinshare/
-└── infra/              # Infraestrutura (tratamento de exceções, configurações)
+└── infra/              # Infraestrutura (tratamento de excecoes, configuracoes)
 ```
 
-### Padrões e Boas Práticas Aplicados
+### Padroes e Boas Praticas Aplicados
 
-- **RESTful API**: Uso correto dos métodos HTTP (GET, POST, PUT, DELETE)
-- **DTO Pattern**: Records Java para transferência de dados
+- **RESTful API**: Uso correto dos metodos HTTP (GET, POST, PUT, DELETE)
+- **DTO Pattern**: Records Java para transferencia de dados
 - **Repository Pattern**: Spring Data JPA para acesso a dados
 - **Exception Handling**: Tratamento centralizado de erros com `@RestControllerAdvice`
-- **Soft Delete**: Exclusão lógica de registros (ativo = false)
-- **Validação de Entrada**: Bean Validation com anotações jakarta.validation
-- **Paginação**: Suporte a paginação em listagens
+- **Soft Delete**: Exclusao logica de registros (ativo = false)
+- **Validacao de Entrada**: Bean Validation com anotacoes jakarta.validation
+- **Paginacao**: Suporte a paginacao em listagens
 
-## 🛠️ Tecnologias
+## Tecnologias
 
-| Tecnologia | Descrição |
+| Tecnologia | Descricao |
 |------------|-----------|
-| Java 25 | Linguagem de programação |
+| Java 25 | Linguagem de programacao |
 | Spring Boot 4.0.5 | Framework principal |
-| Spring Data JPA | Persistência de dados |
-| Flyway | Controle de migrações de banco de dados |
+| Spring Data JPA | Persistencia de dados |
+| Flyway | Controle de migracoes de banco de dados |
 | MySQL | Banco de dados relacional |
-| Lombok | Redução de boilerplate |
-| Springdoc OpenAPI | Documentação automática da API (Swagger) |
+| Lombok | Reducao de boilerplate |
+| Springdoc OpenAPI | Documentacao automatica da API (Swagger) |
 
-## 📦 Configuração do Ambiente
+## Configuracao do Ambiente
 
-### 1. Pré-requisitos
+### 1. Pre-requisitos
 
 - Java 25+
 - Maven 3.8+
@@ -64,9 +64,9 @@ Criar o banco de dados MySQL:
 CREATE DATABASE vinshare CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### 3. Configuração
+### 3. Configuracao
 
-O arquivo `src/main/resources/application.properties` já está configurado com:
+O arquivo `src/main/resources/application.properties` ja esta configurado com:
 
 ```properties
 spring.application.name=vinshare
@@ -77,7 +77,7 @@ spring.datasource.username=root
 spring.datasource.password=fiap
 ```
 
-### 4. Execução
+### 4. Execucao
 
 ```bash
 # Compilar o projeto
@@ -87,46 +87,46 @@ spring.datasource.password=fiap
 ./mvnw spring-boot:run
 ```
 
-A API estará disponível em: `http://localhost:8085`
+A API estara disponivel em: `http://localhost:8085`
 
-## 📚 Documentação da API (Swagger)
+## Documentacao da API (Swagger)
 
-Após iniciar a aplicação, acesse:
+Apos iniciar a aplicacao, acesse:
 
 - **Swagger UI**: http://localhost:8085/swagger-ui.html
 - **OpenAPI JSON**: http://localhost:8085/api-docs
 
-## 🔌 Endpoints Disponíveis
+## Endpoints Disponiveis
 
 ### Health Check
 
-| Método | Endpoint | Descrição |
+| Metodo | Endpoint | Descricao |
 |--------|----------|-----------|
-| GET | `/health-check` | Verifica se a API está funcionando |
+| GET | `/health-check` | Verifica se a API esta funcionando |
 
-### Concessionárias
+### Concessionarias
 
-| Método | Endpoint | Descrição |
+| Metodo | Endpoint | Descricao |
 |--------|----------|-----------|
-| POST | `/concessionarias` | Cadastrar nova concessionária |
-| GET | `/concessionarias` | Listar todas as concessionárias (paginado) |
-| GET | `/concessionarias/{id}` | Buscar concessionária por ID |
-| PUT | `/concessionarias` | Atualizar concessionária |
-| DELETE | `/concessionarias/{id}` | Excluir concessionária (soft delete) |
+| POST | `/concessionarias` | Cadastrar nova concessionaria |
+| GET | `/concessionarias` | Listar todas as concessionarias (paginado) |
+| GET | `/concessionarias/{id}` | Buscar concessionaria por ID |
+| PUT | `/concessionarias` | Atualizar concessionaria |
+| DELETE | `/concessionarias/{id}` | Excluir concessionaria (soft delete) |
 
-### Veículos
+### Veiculos
 
-| Método | Endpoint | Descrição |
+| Metodo | Endpoint | Descricao |
 |--------|----------|-----------|
-| POST | `/veiculos` | Cadastrar novo veículo |
-| GET | `/veiculos` | Listar todos os veículos (paginado) |
-| GET | `/veiculos/{id}` | Buscar veículo por ID |
-| PUT | `/veiculos` | Atualizar veículo |
-| DELETE | `/veiculos/{id}` | Excluir veículo |
+| POST | `/veiculos` | Cadastrar novo veiculo |
+| GET | `/veiculos` | Listar todos os veiculos (paginado) |
+| GET | `/veiculos/{id}` | Buscar veiculo por ID |
+| PUT | `/veiculos` | Atualizar veiculo |
+| DELETE | `/veiculos/{id}` | Excluir veiculo |
 
 ### Clientes
 
-| Método | Endpoint | Descrição |
+| Metodo | Endpoint | Descricao |
 |--------|----------|-----------|
 | POST | `/clientes` | Cadastrar novo cliente |
 | GET | `/clientes` | Listar todos os clientes (paginado) |
@@ -134,29 +134,29 @@ Após iniciar a aplicação, acesse:
 | PUT | `/clientes` | Atualizar cliente |
 | DELETE | `/clientes/{id}` | Excluir cliente (soft delete) |
 
-### Serviços
+### Servicos
 
-| Método | Endpoint | Descrição |
+| Metodo | Endpoint | Descricao |
 |--------|----------|-----------|
-| POST | `/servicos` | Cadastrar novo serviço |
-| GET | `/servicos` | Listar todos os serviços (paginado) |
-| GET | `/servicos/{id}` | Buscar serviço por ID |
-| PUT | `/servicos` | Atualizar serviço |
-| DELETE | `/servicos/{id}` | Excluir serviço |
+| POST | `/servicos` | Cadastrar novo servico |
+| GET | `/servicos` | Listar todos os servicos (paginado) |
+| GET | `/servicos/{id}` | Buscar servico por ID |
+| PUT | `/servicos` | Atualizar servico |
+| DELETE | `/servicos/{id}` | Excluir servico |
 
-### VIN Share (Análise)
+### VIN Share (Analise)
 
-| Método | Endpoint | Descrição |
+| Metodo | Endpoint | Descricao |
 |--------|----------|-----------|
-| GET | `/vinshare/dashboard` | Dashboard completo com métricas |
-| GET | `/vinshare/concessionaria/{id}` | VIN Share de uma concessionária |
-| GET | `/vinshare/concessionarias` | VIN Share de todas as concessionárias |
+| GET | `/vinshare/dashboard` | Dashboard completo com metricas |
+| GET | `/vinshare/concessionaria/{id}` | VIN Share de uma concessionaria |
+| GET | `/vinshare/concessionarias` | VIN Share de todas as concessionarias |
 | GET | `/vinshare/clientes-risco` | Listar clientes em risco |
-| GET | `/vinshare/clientes-risco?concessionariaId={id}` | Clientes em risco por concessionária |
+| GET | `/vinshare/clientes-risco?concessionariaId={id}` | Clientes em risco por concessionaria |
 
-## 📝 Exemplos de Requisições
+## Exemplos de Requisicoes
 
-### Cadastrar Concessionária
+### Cadastrar Concessionaria
 
 ```bash
 curl -X POST http://localhost:8085/concessionarias \
@@ -165,12 +165,12 @@ curl -X POST http://localhost:8085/concessionarias \
     "cnpj": "12.345.678/0001-90",
     "nome": "Ford SP Centro",
     "regiao": "Sudeste",
-    "cidade": "São Paulo",
+    "cidade": "Sao Paulo",
     "estado": "SP"
   }'
 ```
 
-### Cadastrar Veículo
+### Cadastrar Veiculo
 
 ```bash
 curl -X POST http://localhost:8085/veiculos \
@@ -195,7 +195,7 @@ curl -X POST http://localhost:8085/clientes \
   -H "Content-Type: application/json" \
   -d '{
     "cpf": "123.456.789-00",
-    "nome": "João Silva",
+    "nome": "Joao Silva",
     "email": "joao.silva@email.com",
     "telefone": "(11) 99999-9999",
     "idade": 35,
@@ -208,7 +208,7 @@ curl -X POST http://localhost:8085/clientes \
   }'
 ```
 
-### Cadastrar Serviço
+### Cadastrar Servico
 
 ```bash
 curl -X POST http://localhost:8085/servicos \
@@ -217,7 +217,7 @@ curl -X POST http://localhost:8085/servicos \
     "clienteId": 1,
     "veiculoId": 1,
     "concessionariaId": 1,
-    "tipoServico": "Revisão Periódica",
+    "tipoServico": "Revisao Periodica",
     "dataServico": "2024-03-15",
     "valorServico": 850.00,
     "garantiaAtiva": true,
@@ -237,7 +237,7 @@ curl http://localhost:8085/vinshare/dashboard
 curl http://localhost:8085/vinshare/clientes-risco
 ```
 
-## 🗄️ Estrutura do Banco de Dados
+## Estrutura do Banco de Dados
 
 ### Tabelas
 
@@ -290,48 +290,22 @@ servicos
 └── status_servico
 ```
 
-## 📊 Perfis de Cliente
+## Perfis de Cliente
 
-O sistema identifica 4 perfis de clientes baseados no comportamento de manutenção:
+O sistema identifica 4 perfis de clientes baseados no comportamento de manutencao:
 
-| Perfil | Descrição |
+| Perfil | Descricao |
 |--------|-----------|
-| **FIEEL** | Cliente fiel que retorna consistentemente para manutenção na rede oficial |
-| **ABANDONO** | Cliente que faz apenas a primeira revisão e sai da rede |
-| **ESQUECIDO** | Cliente que perde o timing da manutenção |
-| **ECONOMICO** | Cliente sensível a preço e promoções |
+| **FIEL** | Cliente fiel que retorna consistentemente para manutencao na rede oficial |
+| **ABANDONO** | Cliente que faz apenas a primeira revisao e sai da rede |
+| **ESQUECIDO** | Cliente que perde o timing da manutencao |
+| **ECONOMICO** | Cliente sensivel a preco e promocoes |
 
-## ⚠️ Tratamento de Erros
-
-A API retorna erros no formato:
-
-```json
-{
-  "mensagem": "Descrição do erro"
-}
-```
-
-Para erros de validação:
-
-```json
-{
-  "campo": "mensagem de erro do campo"
-}
-```
-
-### Códigos de Erro
-
-| Status | Descrição |
-|--------|-----------|
-| 400 | Bad Request - Dados inválidos |
-| 404 | Not Found - Recurso não encontrado |
-| 500 | Internal Server Error - Erro interno |
-
-## 📁 Estrutura de Arquivos
+## Estrutura de Arquivos
 
 ```
 fiap-sprint-ford-soa/
-├── pom.xml                                    # Configuração Maven
+├── pom.xml                                    # Configuracao Maven
 ├── src/
 │   └── main/
 │       ├── java/br/com/ford/vinshare/
@@ -343,7 +317,7 @@ fiap-sprint-ford-soa/
 │       │   │   ├── ServicoController.java
 │       │   │   ├── VeiculoController.java
 │       │   │   └── VinShareController.java
-│       │   ├── domain/                       # Domínio da aplicação
+│       │   ├── domain/                       # Dominio da aplicacao
 │       │   │   ├── cliente/
 │       │   │   ├── concessionaria/
 │       │   │   ├── servico/
@@ -359,10 +333,15 @@ fiap-sprint-ford-soa/
 └── README.md
 ```
 
-## 👥 Equipe
+## Equipe
 
-Projeto desenvolvido para **Ford FIAP 2026** - Desafio 02: Impulsionando o VIN Share na América do Sul com Soluções Inteligentes.
+Projeto desenvolvido para **Ford FIAP 2026** - Desafio 02: Impulsionando o VIN Share na America do Sul com Solucoes Inteligentes.
 
-## 📄 Licença
+| Nome | RM |
+|------|-----|
+| Felipe Marques de Oliveira | 556319 |
+| Gabriel Barros Cisoto | 556309 |
+
+## Licenca
 
 Para uso interno da Ford e FIAP.
