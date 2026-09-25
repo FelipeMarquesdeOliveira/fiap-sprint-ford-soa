@@ -1,5 +1,7 @@
 package br.com.ford.vinshare.domain.veiculo;
 
+import java.math.BigDecimal;
+
 public record DadosDetalhamentoVeiculo(
         Long id,
         String vin,
@@ -9,7 +11,7 @@ public record DadosDetalhamentoVeiculo(
         Integer anoModelo,
         String cor,
         String combustivel,
-        Double valorCompra,
+        BigDecimal valorCompra,
         String tipoVeiculo
 ) {
     public DadosDetalhamentoVeiculo(Veiculo veiculo) {

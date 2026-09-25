@@ -1,11 +1,14 @@
 package br.com.ford.vinshare.domain.veiculo;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
-@Repository
 public interface VeiculoRepository extends JpaRepository<Veiculo, Long> {
-    Optional<Veiculo> findByVin(String vin);
+
+    Page<Veiculo> findAllByModeloContainingIgnoreCase(String modelo, Pageable paginacao);
+
+    boolean existsByVin(String vin);
+
+    boolean existsByVinAndIdNot(String vin, Long id);
 }

@@ -1,12 +1,14 @@
 package br.com.ford.vinshare.domain.vinshare;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public record DashboardResponse(
-        List<VinShareResponse> vinSharePorConcessionaria,
         VinShareResponse vinShareGeral,
-        Long totalClientes,
-        Long totalVeiculos,
-        Long totalServicos,
-        Double receitaTotal
+        List<VinShareResponse> vinSharePorConcessionaria,
+        long totalClientes,
+        long totalVeiculosVendidos,
+        long totalServicosConcluidos,
+        long clientesEmRisco,
+        BigDecimal receitaTotal
 ) {}
