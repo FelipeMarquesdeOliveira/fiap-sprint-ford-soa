@@ -56,7 +56,7 @@ CREATE TABLE servicos (
 
 CREATE INDEX idx_clientes_cpf ON clientes(cpf);
 CREATE INDEX idx_clientes_perfil ON clientes(perfil_cliente);
-CREATE INDEX idx_clientes_ativo ON clientes(ativo);
+CREATE INDEX idx_clientes_ativa ON clientes(ativa);
 CREATE INDEX idx_veiculos_vin ON veiculos(vin);
 CREATE INDEX idx_servicos_cliente ON servicos(cliente_id);
 CREATE INDEX idx_servicos_data ON servicos(data_servico);
