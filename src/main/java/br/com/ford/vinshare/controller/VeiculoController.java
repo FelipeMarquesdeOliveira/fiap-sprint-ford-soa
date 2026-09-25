@@ -1,95 +1,101 @@
 package br.com.ford.vinshare.controller;
 
+import br.com.ford.vinshare.domain.servico.DadosListagemServico;
 import br.com.ford.vinshare.domain.veiculo.*;
+import br.com.ford.vinshare.service.VeiculoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/veiculos")
-@Tag(name = "Veículos", description = "Endpoints para gerenciamento de veículos Ford")
+@RequiredArgsConstructor
+@Tag(name = "Veículos")
 public class VeiculoController {
 
-    @Autowired
-    private VeiculoRepository repository;
-
-    @PostMapping
-    @Transactional
-    @Operation(summary = "Cadastrar veículo", description = "Cadastra um novo veículo na base de dados")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Veículo criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
-    })
-    public ResponseEntity<DadosDetalhamentoVeiculo> cadastrarVeiculo(
-            @RequestBody @Valid DadosCadastroVeiculo dados,
-            UriComponentsBuilder uriBuilder) {
-        var veiculo = dados.toEntity();
-        repository.save(veiculo);
-        var uri = uriBuilder.path("/veiculos/{id}").buildAndExpand(veiculo.getId()).toUri();
-        return ResponseEntity.created(uri).body(new DadosDetalhamentoVeiculo(veiculo));
-    }
+    private final VeiculoService service;
 
     @GetMapping
-    @Operation(summary = "Listar veículos", description = "Lista todos os veículos com paginação")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de veículos")
-    })
-    public ResponseEntity<Page<DadosListagemVeiculo>> listarVeiculos(Pageable paginacao) {
-        var page = repository.findAll(paginacao).map(DadosListagemVeiculo::new);
-        return ResponseEntity.ok(page);
+    @Operation(summary = "Listar veículos", description = "Perfis: todos. Filtro opcional por modelo.")
+    public ResponseEntity<PagedModel<DadosListagemVeiculo>> listar(
+            @Parameter(description = "Parte do nome do modelo (ex.: ranger)") @RequestParam(required = false) String modelo,
+            @ParameterObject @PageableDefault(size = 10, sort = "modelo") Pageable paginacao) {
+        return ResponseEntity.ok(new PagedModel<>(service.listar(modelo, paginacao)));
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar veículo por ID", description = "Retorna os detalhes de um veículo específico")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Veículo encontrado"),
-            @ApiResponse(responseCode = "404", description = "Veículo não encontrado")
-    })
-    public ResponseEntity<DadosDetalhamentoVeiculo> listarVeiculoPorId(
-            @Parameter(description = "ID do veículo") @PathVariable Long id) {
-        var veiculo = repository.findById(id)
-                .orElseThrow(() -> new VeiculoNotFoundException("Veículo não encontrado"));
-        return ResponseEntity.ok(new DadosDetalhamentoVeiculo(veiculo));
+    @Operation(summary = "Detalhar veículo", description = "Perfis: todos.")
+    @ApiResponse(responseCode = "404", description = "Veículo não encontrado")
+    public ResponseEntity<DadosDetalhamentoVeiculo> detalhar(@Parameter(description = "ID do veículo") @PathVariable Long id) {
+        return ResponseEntity.ok(service.detalhar(id));
     }
 
-    @PutMapping
-    @Transactional
-    @Operation(summary = "Atualizar veículo", description = "Atualiza os dados de um veículo existente")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Veículo atualizado"),
-            @ApiResponse(responseCode = "404", description = "Veículo não encontrado")
+    @GetMapping("/{id}/servicos")
+    @Operation(summary = "Histórico de serviços do veículo", description = "Perfis: todos. Sub-recurso com os serviços do VIN em toda a rede oficial.")
+    @ApiResponse(responseCode = "404", description = "Veículo não encontrado")
+    public ResponseEntity<List<DadosListagemServico>> historico(@PathVariable Long id) {
+        return ResponseEntity.ok(service.historicoDeServicos(id));
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONCESSIONARIA')")
+    @Operation(summary = "Cadastrar veículo", description = "Perfis: ADMIN, CONCESSIONARIA.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Veículo criado (header Location aponta para o recurso)"),
+            @ApiResponse(responseCode = "409", description = "VIN já cadastrado")
     })
-    public ResponseEntity<DadosDetalhamentoVeiculo> atualizarVeiculo(
-            @RequestBody @Valid DadosAtualizacaoVeiculo dados) {
-        var veiculo = repository.findById(dados.id())
-                .orElseThrow(() -> new VeiculoNotFoundException("Veículo não encontrado"));
-        dados.atualizarInformacoes(veiculo);
-        return ResponseEntity.ok(new DadosDetalhamentoVeiculo(veiculo));
+    public ResponseEntity<DadosDetalhamentoVeiculo> cadastrar(@RequestBody @Valid DadosCadastroVeiculo dados,
+                                                              UriComponentsBuilder uriBuilder) {
+        var veiculo = service.cadastrar(dados);
+        var uri = uriBuilder.path("/veiculos/{id}").buildAndExpand(veiculo.id()).toUri();
+        return ResponseEntity.created(uri).body(veiculo);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONCESSIONARIA')")
+    @Operation(summary = "Substituir veículo", description = "Perfis: ADMIN, CONCESSIONARIA. PUT exige a representação completa.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "404", description = "Veículo não encontrado"),
+            @ApiResponse(responseCode = "409", description = "VIN pertence a outro veículo")
+    })
+    public ResponseEntity<DadosDetalhamentoVeiculo> substituir(@PathVariable Long id,
+                                                               @RequestBody @Valid DadosCadastroVeiculo dados) {
+        return ResponseEntity.ok(service.substituir(id, dados));
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONCESSIONARIA')")
+    @Operation(summary = "Atualizar veículo parcialmente", description = "Perfis: ADMIN, CONCESSIONARIA. O VIN é imutável.")
+    @ApiResponse(responseCode = "404", description = "Veículo não encontrado")
+    public ResponseEntity<DadosDetalhamentoVeiculo> atualizar(@PathVariable Long id,
+                                                              @RequestBody @Valid DadosAtualizacaoVeiculo dados) {
+        return ResponseEntity.ok(service.atualizar(id, dados));
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Transactional
-    @Operation(summary = "Excluir veículo", description = "Remove um veículo da base de dados")
-    @ApiResponses(value = {
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Excluir veículo", description = "Perfil: ADMIN. Só é permitido para veículos sem cliente ou serviços vinculados.")
+    @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Veículo excluído"),
-            @ApiResponse(responseCode = "404", description = "Veículo não encontrado")
+            @ApiResponse(responseCode = "404", description = "Veículo não encontrado"),
+            @ApiResponse(responseCode = "409", description = "Veículo vinculado a cliente ou serviços")
     })
-    public void excluirVeiculo(
-            @Parameter(description = "ID do veículo") @PathVariable Long id) {
-        repository.findById(id)
-                .orElseThrow(() -> new VeiculoNotFoundException("Veículo não encontrado"));
-        repository.deleteById(id);
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        service.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 }

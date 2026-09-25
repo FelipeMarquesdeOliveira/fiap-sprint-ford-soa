@@ -1,123 +1,107 @@
 package br.com.ford.vinshare.controller;
 
 import br.com.ford.vinshare.domain.cliente.*;
-import br.com.ford.vinshare.domain.concessionaria.ConcessionariaRepository;
-import br.com.ford.vinshare.domain.veiculo.VeiculoRepository;
+import br.com.ford.vinshare.domain.usuario.Usuario;
+import br.com.ford.vinshare.service.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/clientes")
-@Tag(name = "Clientes", description = "Endpoints para gerenciamento de clientes das concessionárias")
+@RequiredArgsConstructor
+@Tag(name = "Clientes")
 public class ClienteController {
 
-    @Autowired
-    private ClienteRepository repository;
-
-    @Autowired
-    private VeiculoRepository veiculoRepository;
-
-    @Autowired
-    private ConcessionariaRepository concessionariaRepository;
-
-    @PostMapping
-    @Transactional
-    @Operation(summary = "Cadastrar cliente", description = "Cadastra um novo cliente na base de dados")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
-    })
-    public ResponseEntity<DadosDetalhamentoCliente> cadastrarCliente(
-            @RequestBody @Valid DadosCadastroCliente dados,
-            UriComponentsBuilder uriBuilder) {
-        var cliente = new Cliente();
-        cliente.setCpf(dados.cpf());
-        cliente.setNome(dados.nome());
-        cliente.setEmail(dados.email());
-        cliente.setTelefone(dados.telefone());
-        cliente.setIdade(dados.idade());
-        cliente.setSexo(dados.sexo());
-        cliente.setRegiao(dados.regiao());
-        cliente.setDataCompra(dados.dataCompra());
-        cliente.setPerfilCliente(dados.perfilCliente());
-        cliente.setAtivo(true);
-
-        if (dados.veiculoId() != null) {
-            veiculoRepository.findById(dados.veiculoId())
-                    .ifPresent(cliente::setVeiculo);
-        }
-        if (dados.concessionariaId() != null) {
-            concessionariaRepository.findById(dados.concessionariaId())
-                    .ifPresent(cliente::setConcessionaria);
-        }
-
-        repository.save(cliente);
-        var uri = uriBuilder.path("/clientes/{id}").buildAndExpand(cliente.getId()).toUri();
-        return ResponseEntity.created(uri).body(new DadosDetalhamentoCliente(cliente));
-    }
+    private final ClienteService service;
 
     @GetMapping
-    @Operation(summary = "Listar clientes", description = "Lista todos os clientes ativos com paginação")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de clientes")
-    })
-    public ResponseEntity<Page<DadosListagemCliente>> listarClientes(Pageable paginacao) {
-        var page = repository.findAllByAtivoTrue(paginacao).map(DadosListagemCliente::new);
-        return ResponseEntity.ok(page);
+    @Operation(summary = "Listar clientes", description = "Perfis: todos. CONCESSIONARIA recebe apenas os clientes da própria concessionária.")
+    public ResponseEntity<PagedModel<DadosListagemCliente>> listar(
+            @ParameterObject @PageableDefault(size = 10, sort = "nome") Pageable paginacao,
+            @AuthenticationPrincipal Usuario usuario) {
+        return ResponseEntity.ok(new PagedModel<>(service.listar(usuario, paginacao)));
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar cliente por ID", description = "Retorna os detalhes de um cliente específico")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cliente encontrado"),
+    @Operation(summary = "Detalhar cliente", description = "Perfis: todos (CONCESSIONARIA apenas clientes próprios).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "403", description = "Cliente de outra concessionária"),
             @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
     })
-    public ResponseEntity<DadosDetalhamentoCliente> listarClientePorId(
-            @Parameter(description = "ID do cliente") @PathVariable Long id) {
-        var cliente = repository.findById(id)
-                .orElseThrow(() -> new ClienteNotFoundException("Cliente não encontrado"));
-        return ResponseEntity.ok(new DadosDetalhamentoCliente(cliente));
+    public ResponseEntity<DadosDetalhamentoCliente> detalhar(@Parameter(description = "ID do cliente") @PathVariable Long id,
+                                                             @AuthenticationPrincipal Usuario usuario) {
+        return ResponseEntity.ok(service.detalhar(id, usuario));
     }
 
-    @PutMapping
-    @Transactional
-    @Operation(summary = "Atualizar cliente", description = "Atualiza os dados de um cliente existente")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Cliente atualizado"),
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONCESSIONARIA')")
+    @Operation(summary = "Cadastrar cliente", description = "Perfis: ADMIN, CONCESSIONARIA. Para CONCESSIONARIA a concessionária é obtida do token.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Cliente criado (header Location aponta para o recurso)"),
+            @ApiResponse(responseCode = "403", description = "CONCESSIONARIA tentando cadastrar cliente de outra concessionária"),
+            @ApiResponse(responseCode = "409", description = "CPF já cadastrado ou veículo já vinculado a outro cliente"),
+            @ApiResponse(responseCode = "422", description = "Concessionária ou veículo inexistente")
+    })
+    public ResponseEntity<DadosDetalhamentoCliente> cadastrar(@RequestBody @Valid DadosCadastroCliente dados,
+                                                              @AuthenticationPrincipal Usuario usuario,
+                                                              UriComponentsBuilder uriBuilder) {
+        var cliente = service.cadastrar(dados, usuario);
+        var uri = uriBuilder.path("/clientes/{id}").buildAndExpand(cliente.id()).toUri();
+        return ResponseEntity.created(uri).body(cliente);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONCESSIONARIA')")
+    @Operation(summary = "Substituir cliente", description = "Perfis: ADMIN, CONCESSIONARIA (clientes próprios). PUT exige a representação completa.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "403", description = "Cliente de outra concessionária"),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado"),
+            @ApiResponse(responseCode = "409", description = "CPF pertence a outro cliente"),
+            @ApiResponse(responseCode = "422", description = "Concessionária ou veículo inexistente")
+    })
+    public ResponseEntity<DadosDetalhamentoCliente> substituir(@PathVariable Long id,
+                                                               @RequestBody @Valid DadosCadastroCliente dados,
+                                                               @AuthenticationPrincipal Usuario usuario) {
+        return ResponseEntity.ok(service.substituir(id, dados, usuario));
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONCESSIONARIA')")
+    @Operation(summary = "Atualizar cliente parcialmente", description = "Perfis: ADMIN, CONCESSIONARIA (clientes próprios).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "403", description = "Cliente de outra concessionária"),
             @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
     })
-    public ResponseEntity<DadosDetalhamentoCliente> atualizarCliente(
-            @RequestBody @Valid DadosAtualizacaoCliente dados) {
-        var cliente = repository.findById(dados.id())
-                .orElseThrow(() -> new ClienteNotFoundException("Cliente não encontrado"));
-        dados.atualizarInformacoes(cliente);
-        return ResponseEntity.ok(new DadosDetalhamentoCliente(cliente));
+    public ResponseEntity<DadosDetalhamentoCliente> atualizar(@PathVariable Long id,
+                                                              @RequestBody @Valid DadosAtualizacaoCliente dados,
+                                                              @AuthenticationPrincipal Usuario usuario) {
+        return ResponseEntity.ok(service.atualizar(id, dados, usuario));
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Transactional
-    @Operation(summary = "Excluir cliente", description = "Realiza soft delete de um cliente")
-    @ApiResponses(value = {
+    @PreAuthorize("hasAnyRole('ADMIN', 'CONCESSIONARIA')")
+    @Operation(summary = "Excluir cliente", description = "Perfis: ADMIN, CONCESSIONARIA (clientes próprios). Exclusão lógica.")
+    @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Cliente excluído"),
+            @ApiResponse(responseCode = "403", description = "Cliente de outra concessionária"),
             @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
     })
-    public void excluirCliente(
-            @Parameter(description = "ID do cliente") @PathVariable Long id) {
-        var cliente = repository.findById(id)
-                .orElseThrow(() -> new ClienteNotFoundException("Cliente não encontrado"));
-        cliente.excluir();
+    public ResponseEntity<Void> excluir(@PathVariable Long id, @AuthenticationPrincipal Usuario usuario) {
+        service.excluir(id, usuario);
+        return ResponseEntity.noContent().build();
     }
 }
