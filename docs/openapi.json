@@ -1,0 +1,4259 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "VIN Share API - Ford FIAP 2026",
+    "description": "API RESTful (nível 2 de maturidade de Richardson) para gestão e análise do **VIN Share** na rede de concessionárias Ford - Desafio 02 do Ford FIAP 2026.\n\n### Autenticação\n1. Faça login em `POST /auth/login` (ex.: `admin@vinshare.test` / `Admin@123`).\n2. Clique em **Authorize** e cole o `accessToken` retornado.\n3. O access token expira em 15 minutos; use `POST /auth/refresh` com o `refreshToken` para obter um novo par.\n\n### Perfis de acesso\n| Perfil | Escopo |\n|---|---|\n| `ADMIN` | Acesso total, gestão de usuários e da rede de concessionárias |\n| `ANALISTA` | Leitura de toda a rede e indicadores de VIN Share |\n| `CONCESSIONARIA` | Clientes e serviços apenas da própria concessionária (id vindo do token) |\n\n### Erros\nTodas as respostas de erro seguem o padrão **Problem Details (RFC 9457)** com `application/problem+json` e os campos extras `codigo`, `timestamp` e `erros` (validação).\n",
+    "contact": {
+      "name": "Felipe Marques de Oliveira e Gabriel Barros Cisoto",
+      "url": "https://github.com/FelipeMarquesdeOliveira/fiap-sprint-ford-soa"
+    },
+    "license": {
+      "name": "Uso acadêmico - FIAP"
+    },
+    "version": "3.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "bearer-jwt": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Autenticação",
+      "description": "Login, renovação de token e logout"
+    },
+    {
+      "name": "Usuários",
+      "description": "Gestão de usuários e perfis (ADMIN)"
+    },
+    {
+      "name": "Concessionárias",
+      "description": "Rede de concessionárias Ford (leitura pública)"
+    },
+    {
+      "name": "Veículos",
+      "description": "Veículos Ford identificados pelo VIN"
+    },
+    {
+      "name": "Clientes",
+      "description": "Clientes da rede (escopo por concessionária)"
+    },
+    {
+      "name": "Serviços",
+      "description": "Serviços de manutenção realizados na rede oficial"
+    },
+    {
+      "name": "VIN Share",
+      "description": "Indicadores de retenção no pós-venda"
+    },
+    {
+      "name": "Health Check",
+      "description": "Disponibilidade da API"
+    }
+  ],
+  "paths": {
+    "/veiculos/{id}": {
+      "get": {
+        "tags": [
+          "Veículos"
+        ],
+        "summary": "Detalhar veículo",
+        "description": "Perfis: todos.",
+        "operationId": "detalhar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID do veículo",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Veículo não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Veículos"
+        ],
+        "summary": "Substituir veículo",
+        "description": "Perfis: ADMIN, CONCESSIONARIA. PUT exige a representação completa.",
+        "operationId": "substituir",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosCadastroVeiculo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Veículo não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "VIN pertence a outro veículo",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Veículos"
+        ],
+        "summary": "Excluir veículo",
+        "description": "Perfil: ADMIN. Só é permitido para veículos sem cliente ou serviços vinculados.",
+        "operationId": "excluir",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Veículo excluído"
+          },
+          "404": {
+            "description": "Veículo não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Veículo vinculado a cliente ou serviços",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Veículos"
+        ],
+        "summary": "Atualizar veículo parcialmente",
+        "description": "Perfis: ADMIN, CONCESSIONARIA. O VIN é imutável.",
+        "operationId": "atualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosAtualizacaoVeiculo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Veículo não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/servicos/{id}": {
+      "get": {
+        "tags": [
+          "Serviços"
+        ],
+        "summary": "Detalhar serviço",
+        "description": "Perfis: todos (CONCESSIONARIA apenas serviços próprios).",
+        "operationId": "detalhar_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID do serviço",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Serviço de outra concessionária",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Serviço não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Serviços"
+        ],
+        "summary": "Substituir serviço",
+        "description": "Perfis: ADMIN, CONCESSIONARIA (serviços próprios). Serviços CONCLUIDO/CANCELADO são imutáveis.",
+        "operationId": "substituir_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosCadastroServico"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "403": {
+            "description": "Serviço de outra concessionária",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Serviço não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Serviço finalizado ou regra de negócio violada",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Serviços"
+        ],
+        "summary": "Excluir serviço",
+        "description": "Perfil: ADMIN.",
+        "operationId": "excluir_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Serviço excluído"
+          },
+          "404": {
+            "description": "Serviço não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Serviços"
+        ],
+        "summary": "Atualizar serviço parcialmente",
+        "description": "Perfis: ADMIN, CONCESSIONARIA (serviços próprios). Ex.: {\"statusServico\": \"CONCLUIDO\"}.",
+        "operationId": "atualizar_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosAtualizacaoServico"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "403": {
+            "description": "Serviço de outra concessionária",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Serviço não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Serviço finalizado ou regra de negócio violada",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/concessionarias/{id}": {
+      "get": {
+        "tags": [
+          "Concessionárias"
+        ],
+        "summary": "Detalhar concessionária",
+        "description": "Endpoint público.",
+        "operationId": "detalhar_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID da concessionária",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Concessionária não encontrada",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "put": {
+        "tags": [
+          "Concessionárias"
+        ],
+        "summary": "Substituir concessionária",
+        "description": "Perfil: ADMIN. PUT exige a representação completa do recurso.",
+        "operationId": "substituir_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosCadastroConcessionaria"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Concessionária não encontrada",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CNPJ pertence a outra concessionária",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Concessionárias"
+        ],
+        "summary": "Excluir concessionária",
+        "description": "Perfil: ADMIN. Exclusão lógica (o histórico é preservado).",
+        "operationId": "excluir_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Concessionária excluída"
+          },
+          "404": {
+            "description": "Concessionária não encontrada",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Concessionárias"
+        ],
+        "summary": "Atualizar concessionária parcialmente",
+        "description": "Perfil: ADMIN. Apenas os campos enviados são alterados.",
+        "operationId": "atualizar_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosAtualizacaoConcessionaria"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Concessionária não encontrada",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clientes/{id}": {
+      "get": {
+        "tags": [
+          "Clientes"
+        ],
+        "summary": "Detalhar cliente",
+        "description": "Perfis: todos (CONCESSIONARIA apenas clientes próprios).",
+        "operationId": "detalhar_3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID do cliente",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Cliente de outra concessionária",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cliente não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Clientes"
+        ],
+        "summary": "Substituir cliente",
+        "description": "Perfis: ADMIN, CONCESSIONARIA (clientes próprios). PUT exige a representação completa.",
+        "operationId": "substituir_3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosCadastroCliente"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "403": {
+            "description": "Cliente de outra concessionária",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cliente não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CPF pertence a outro cliente",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Concessionária ou veículo inexistente",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Clientes"
+        ],
+        "summary": "Excluir cliente",
+        "description": "Perfis: ADMIN, CONCESSIONARIA (clientes próprios). Exclusão lógica.",
+        "operationId": "excluir_3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Cliente excluído"
+          },
+          "403": {
+            "description": "Cliente de outra concessionária",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cliente não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Clientes"
+        ],
+        "summary": "Atualizar cliente parcialmente",
+        "description": "Perfis: ADMIN, CONCESSIONARIA (clientes próprios).",
+        "operationId": "atualizar_3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosAtualizacaoCliente"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "403": {
+            "description": "Cliente de outra concessionária",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cliente não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/veiculos": {
+      "get": {
+        "tags": [
+          "Veículos"
+        ],
+        "summary": "Listar veículos",
+        "description": "Perfis: todos. Filtro opcional por modelo.",
+        "operationId": "listar",
+        "parameters": [
+          {
+            "name": "modelo",
+            "in": "query",
+            "description": "Parte do nome do modelo (ex.: ranger)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "default": [
+                "modelo,ASC"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedModelDadosListagemVeiculo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Veículos"
+        ],
+        "summary": "Cadastrar veículo",
+        "description": "Perfis: ADMIN, CONCESSIONARIA.",
+        "operationId": "cadastrar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosCadastroVeiculo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Veículo criado (header Location aponta para o recurso)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DadosDetalhamentoVeiculo"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "VIN já cadastrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuarios": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Listar usuários",
+        "description": "Perfil: ADMIN.",
+        "operationId": "listar_1",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "default": [
+                "nome,ASC"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedModelDadosDetalhamentoUsuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Cadastrar usuário",
+        "description": "Perfil: ADMIN. A senha é armazenada com hash BCrypt.",
+        "operationId": "cadastrar_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosCadastroUsuario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado (header Location aponta para o recurso)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DadosDetalhamentoUsuario"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "E-mail já cadastrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Perfil CONCESSIONARIA sem concessionária válida",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/servicos": {
+      "get": {
+        "tags": [
+          "Serviços"
+        ],
+        "summary": "Listar serviços",
+        "description": "Perfis: todos. CONCESSIONARIA recebe apenas os serviços que executou. Filtro opcional por status.",
+        "operationId": "listar_2",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Status do serviço",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "AGENDADO",
+                "EM_ANDAMENTO",
+                "CONCLUIDO",
+                "CANCELADO"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "default": [
+                "dataServico,DESC"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedModelDadosListagemServico"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Serviços"
+        ],
+        "summary": "Registrar serviço",
+        "description": "Perfis: ADMIN, CONCESSIONARIA. O veículo deve pertencer ao cliente e um serviço CONCLUIDO não pode ter data futura.",
+        "operationId": "cadastrar_2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosCadastroServico"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Serviço registrado (header Location aponta para o recurso)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DadosDetalhamentoServico"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "CONCESSIONARIA tentando registrar serviço de outra concessionária",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Regra de negócio violada (cliente/veículo inválido, data futura...)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/concessionarias": {
+      "get": {
+        "tags": [
+          "Concessionárias"
+        ],
+        "summary": "Listar concessionárias",
+        "description": "Endpoint público: localização da rede oficial. Filtro opcional por UF.",
+        "operationId": "listar_3",
+        "parameters": [
+          {
+            "name": "estado",
+            "in": "query",
+            "description": "Sigla da UF (ex.: SP)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "default": [
+                "nome,ASC"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedModelDadosListagemConcessionaria"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "tags": [
+          "Concessionárias"
+        ],
+        "summary": "Cadastrar concessionária",
+        "description": "Perfil: ADMIN.",
+        "operationId": "cadastrar_3",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosCadastroConcessionaria"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Concessionária criada (header Location aponta para o recurso)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DadosDetalhamentoConcessionaria"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CNPJ já cadastrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clientes": {
+      "get": {
+        "tags": [
+          "Clientes"
+        ],
+        "summary": "Listar clientes",
+        "description": "Perfis: todos. CONCESSIONARIA recebe apenas os clientes da própria concessionária.",
+        "operationId": "listar_4",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "default": [
+                "nome,ASC"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedModelDadosListagemCliente"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Clientes"
+        ],
+        "summary": "Cadastrar cliente",
+        "description": "Perfis: ADMIN, CONCESSIONARIA. Para CONCESSIONARIA a concessionária é obtida do token.",
+        "operationId": "cadastrar_4",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosCadastroCliente"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Cliente criado (header Location aponta para o recurso)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DadosDetalhamentoCliente"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "CONCESSIONARIA tentando cadastrar cliente de outra concessionária",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CPF já cadastrado ou veículo já vinculado a outro cliente",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Concessionária ou veículo inexistente",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Renovar tokens",
+        "description": "Troca um refresh token válido por um novo par de tokens. O refresh token usado é revogado (rotação); reutilizá-lo encerra todas as sessões do usuário. Endpoint público.",
+        "operationId": "renovar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosRefreshToken"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Novo par de tokens emitido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DadosTokenJWT"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refresh token inválido, expirado ou reutilizado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Logout",
+        "description": "Revoga os refresh tokens do usuário e invalida imediatamente os access tokens já emitidos.",
+        "operationId": "logout",
+        "responses": {
+          "204": {
+            "description": "Sessões encerradas"
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Login",
+        "description": "Autentica com e-mail e senha e retorna um access token JWT (15 min) e um refresh token (7 dias). Endpoint público.",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosLogin"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Autenticado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DadosTokenJWT"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "E-mail ou senha inválidos (codigo CREDENCIAIS_INVALIDAS)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/usuarios/{id}": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Detalhar usuário",
+        "description": "Perfil: ADMIN.",
+        "operationId": "detalhar_4",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID do usuário",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Usuário não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Desativar usuário",
+        "description": "Perfil: ADMIN. Exclusão lógica; os tokens do usuário deixam de ser aceitos.",
+        "operationId": "desativar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Usuário desativado"
+          },
+          "404": {
+            "description": "Usuário não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Tentativa de desativar o próprio usuário",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar usuário parcialmente",
+        "description": "Perfil: ADMIN. Alterar perfil/concessionária ou desativar invalida na hora os tokens do usuário.",
+        "operationId": "atualizar_4",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DadosAtualizacaoUsuario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Usuário não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Regra violada (ex.: remover o próprio perfil ADMIN)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vinshare/dashboard": {
+      "get": {
+        "tags": [
+          "VIN Share"
+        ],
+        "summary": "Dashboard da rede",
+        "description": "Perfis: ADMIN, ANALISTA. VIN Share geral e por concessionária, totais e clientes em risco.",
+        "operationId": "dashboard",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vinshare/concessionarias": {
+      "get": {
+        "tags": [
+          "VIN Share"
+        ],
+        "summary": "VIN Share de todas as concessionárias",
+        "description": "Perfis: ADMIN, ANALISTA.",
+        "operationId": "porConcessionaria",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VinShareResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vinshare/concessionarias/{id}": {
+      "get": {
+        "tags": [
+          "VIN Share"
+        ],
+        "summary": "VIN Share de uma concessionária",
+        "description": "Perfis: ADMIN, ANALISTA; CONCESSIONARIA somente a própria.",
+        "operationId": "daConcessionaria",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID da concessionária",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "CONCESSIONARIA consultando outra concessionária",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Concessionária não encontrada",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vinshare/clientes-risco": {
+      "get": {
+        "tags": [
+          "VIN Share"
+        ],
+        "summary": "Clientes em risco de evasão",
+        "description": "Perfis: todos. Clientes com 0 ou 1 serviço concluído na rede; CONCESSIONARIA recebe apenas os próprios. CPF mascarado.",
+        "operationId": "clientesRisco",
+        "parameters": [
+          {
+            "name": "concessionariaId",
+            "in": "query",
+            "description": "Filtra por concessionária (opcional)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "CONCESSIONARIA filtrando por outra concessionária",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/veiculos/{id}/servicos": {
+      "get": {
+        "tags": [
+          "Veículos"
+        ],
+        "summary": "Histórico de serviços do veículo",
+        "description": "Perfis: todos. Sub-recurso com os serviços do VIN em toda a rede oficial.",
+        "operationId": "historico",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Veículo não encontrado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida (validação, JSON malformado ou parâmetro com tipo incorreto)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuarios/me": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Usuário autenticado",
+        "description": "Retorna os dados do dono do token. Disponível para qualquer perfil.",
+        "operationId": "meusDados",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DadosDetalhamentoUsuario"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido, expirado ou revogado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Perfil sem permissão para o recurso",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health-check": {
+      "get": {
+        "tags": [
+          "Health Check"
+        ],
+        "summary": "Health check",
+        "description": "Endpoint público para monitoramento da disponibilidade da API.",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DadosHealthCheck"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno inesperado",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DadosCadastroVeiculo": {
+        "type": "object",
+        "properties": {
+          "vin": {
+            "type": "string",
+            "description": "VIN (ISO 3779): 17 caracteres, sem as letras I, O e Q",
+            "example": "9BFZH55L8S8000011",
+            "minLength": 1,
+            "pattern": "^[A-HJ-NPR-Z0-9]{17}$"
+          },
+          "modelo": {
+            "type": "string",
+            "example": "Ranger",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "versao": {
+            "type": "string",
+            "example": "Raptor 3.0 V6",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "anoFabricacao": {
+            "type": "integer",
+            "format": "int32",
+            "example": 2025,
+            "maximum": 2100,
+            "minimum": 1990
+          },
+          "anoModelo": {
+            "type": "integer",
+            "format": "int32",
+            "example": 2026,
+            "maximum": 2100,
+            "minimum": 1990
+          },
+          "cor": {
+            "type": "string",
+            "example": "Azul Belize",
+            "maxLength": 50,
+            "minLength": 0
+          },
+          "combustivel": {
+            "type": "string",
+            "example": "Gasolina",
+            "maxLength": 50,
+            "minLength": 0
+          },
+          "valorCompra": {
+            "type": "number",
+            "example": 469900.0
+          },
+          "tipoVeiculo": {
+            "type": "string",
+            "example": "Picape",
+            "maxLength": 50,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "modelo",
+          "versao",
+          "vin"
+        ]
+      },
+      "DadosDetalhamentoVeiculo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "vin": {
+            "type": "string"
+          },
+          "modelo": {
+            "type": "string"
+          },
+          "versao": {
+            "type": "string"
+          },
+          "anoFabricacao": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "anoModelo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cor": {
+            "type": "string"
+          },
+          "combustivel": {
+            "type": "string"
+          },
+          "valorCompra": {
+            "type": "number"
+          },
+          "tipoVeiculo": {
+            "type": "string"
+          }
+        }
+      },
+      "DadosCadastroServico": {
+        "type": "object",
+        "properties": {
+          "clienteId": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "veiculoId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Deve ser o veículo do cliente",
+            "example": 1
+          },
+          "concessionariaId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Concessionária que executa o serviço. Obrigatório para ADMIN; para o perfil CONCESSIONARIA é obtido do token.",
+            "example": 1
+          },
+          "tipoServico": {
+            "type": "string",
+            "example": "Revisão 40.000 km",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "dataServico": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-09-20"
+          },
+          "valorServico": {
+            "type": "number",
+            "example": 1490.0
+          },
+          "garantiaAtiva": {
+            "type": "boolean",
+            "example": true
+          },
+          "statusServico": {
+            "type": "string",
+            "enum": [
+              "AGENDADO",
+              "EM_ANDAMENTO",
+              "CONCLUIDO",
+              "CANCELADO"
+            ],
+            "example": "CONCLUIDO"
+          }
+        },
+        "required": [
+          "clienteId",
+          "dataServico",
+          "statusServico",
+          "tipoServico",
+          "valorServico",
+          "veiculoId"
+        ]
+      },
+      "DadosDetalhamentoServico": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cliente": {
+            "$ref": "#/components/schemas/DadosListagemCliente"
+          },
+          "veiculo": {
+            "$ref": "#/components/schemas/DadosListagemVeiculo"
+          },
+          "concessionaria": {
+            "$ref": "#/components/schemas/DadosListagemConcessionaria"
+          },
+          "tipoServico": {
+            "type": "string"
+          },
+          "dataServico": {
+            "type": "string",
+            "format": "date"
+          },
+          "valorServico": {
+            "type": "number"
+          },
+          "garantiaAtiva": {
+            "type": "boolean"
+          },
+          "statusServico": {
+            "type": "string",
+            "enum": [
+              "AGENDADO",
+              "EM_ANDAMENTO",
+              "CONCLUIDO",
+              "CANCELADO"
+            ]
+          }
+        }
+      },
+      "DadosListagemCliente": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cpf": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "perfilCliente": {
+            "type": "string",
+            "enum": [
+              "FIEL",
+              "ABANDONO",
+              "ESQUECIDO",
+              "ECONOMICO"
+            ]
+          },
+          "regiao": {
+            "type": "string"
+          },
+          "concessionariaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "veiculo": {
+            "$ref": "#/components/schemas/DadosListagemVeiculo"
+          }
+        }
+      },
+      "DadosListagemConcessionaria": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "regiao": {
+            "type": "string"
+          },
+          "cidade": {
+            "type": "string"
+          },
+          "estado": {
+            "type": "string"
+          }
+        }
+      },
+      "DadosListagemVeiculo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "vin": {
+            "type": "string"
+          },
+          "modelo": {
+            "type": "string"
+          },
+          "versao": {
+            "type": "string"
+          },
+          "anoFabricacao": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "DadosCadastroConcessionaria": {
+        "type": "object",
+        "properties": {
+          "cnpj": {
+            "type": "string",
+            "example": "55.666.777/0001-81",
+            "minLength": 1
+          },
+          "nome": {
+            "type": "string",
+            "example": "Ford Capixaba Vitória",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "regiao": {
+            "type": "string",
+            "example": "Sudeste",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "cidade": {
+            "type": "string",
+            "example": "Vitória",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "estado": {
+            "type": "string",
+            "example": "ES",
+            "pattern": "^[A-Z]{2}$"
+          }
+        },
+        "required": [
+          "cnpj",
+          "nome",
+          "regiao"
+        ]
+      },
+      "DadosDetalhamentoConcessionaria": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cnpj": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "regiao": {
+            "type": "string"
+          },
+          "cidade": {
+            "type": "string"
+          },
+          "estado": {
+            "type": "string"
+          },
+          "ativa": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DadosCadastroCliente": {
+        "type": "object",
+        "properties": {
+          "cpf": {
+            "type": "string",
+            "example": "173.205.080-52",
+            "minLength": 1
+          },
+          "nome": {
+            "type": "string",
+            "example": "Larissa Teixeira",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "larissa.teixeira@email.test",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "telefone": {
+            "type": "string",
+            "example": "(11) 97777-1234",
+            "pattern": "^\\(?\\d{2}\\)?\\s?9?\\d{4}-?\\d{4}$"
+          },
+          "idade": {
+            "type": "integer",
+            "format": "int32",
+            "example": 34,
+            "maximum": 120,
+            "minimum": 18
+          },
+          "sexo": {
+            "type": "string",
+            "description": "M, F ou O (outro)",
+            "example": "F",
+            "pattern": "^[MFO]$"
+          },
+          "regiao": {
+            "type": "string",
+            "example": "Sudeste",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "dataCompra": {
+            "type": "string",
+            "format": "date",
+            "example": "2025-09-15"
+          },
+          "veiculoId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Veículo comprado pelo cliente",
+            "example": 1
+          },
+          "concessionariaId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Concessionária da venda. Obrigatório para ADMIN; para o perfil CONCESSIONARIA é obtido do token.",
+            "example": 1
+          },
+          "perfilCliente": {
+            "type": "string",
+            "enum": [
+              "FIEL",
+              "ABANDONO",
+              "ESQUECIDO",
+              "ECONOMICO"
+            ],
+            "example": "FIEL"
+          }
+        },
+        "required": [
+          "cpf",
+          "nome"
+        ]
+      },
+      "DadosDetalhamentoCliente": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cpf": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "telefone": {
+            "type": "string"
+          },
+          "idade": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sexo": {
+            "type": "string"
+          },
+          "regiao": {
+            "type": "string"
+          },
+          "dataCompra": {
+            "type": "string",
+            "format": "date"
+          },
+          "veiculo": {
+            "$ref": "#/components/schemas/DadosListagemVeiculo"
+          },
+          "concessionaria": {
+            "$ref": "#/components/schemas/DadosListagemConcessionaria"
+          },
+          "perfilCliente": {
+            "type": "string",
+            "enum": [
+              "FIEL",
+              "ABANDONO",
+              "ESQUECIDO",
+              "ECONOMICO"
+            ]
+          },
+          "ativo": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DadosCadastroUsuario": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "example": "Gestora Ford Mineira",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "concessionaria.mg@vinshare.test",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "senha": {
+            "type": "string",
+            "description": "Mínimo 8 caracteres, com maiúscula, minúscula, número e caractere especial",
+            "example": "Mineira@2026",
+            "maxLength": 72,
+            "minLength": 0,
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$"
+          },
+          "perfil": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "ANALISTA",
+              "CONCESSIONARIA"
+            ],
+            "example": "CONCESSIONARIA"
+          },
+          "concessionariaId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Obrigatório quando o perfil é CONCESSIONARIA",
+            "example": 3
+          }
+        },
+        "required": [
+          "email",
+          "nome",
+          "perfil",
+          "senha"
+        ]
+      },
+      "DadosDetalhamentoUsuario": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "perfil": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "ANALISTA",
+              "CONCESSIONARIA"
+            ]
+          },
+          "concessionariaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ativo": {
+            "type": "boolean"
+          },
+          "criadoEm": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DadosRefreshToken": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token recebido no login ou na última renovação",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "DadosTokenJWT": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "JWT assinado (HS256) a ser enviado em Authorization: Bearer <token>"
+          },
+          "tokenType": {
+            "type": "string",
+            "example": "Bearer"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Validade do access token em segundos",
+            "example": 900
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Token opaco de uso único para obter um novo par de tokens em POST /auth/refresh"
+          },
+          "refreshExpiresIn": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Validade do refresh token em segundos",
+            "example": 604800
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/UsuarioAutenticado"
+          }
+        }
+      },
+      "UsuarioAutenticado": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "perfil": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "ANALISTA",
+              "CONCESSIONARIA"
+            ]
+          },
+          "concessionariaId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "DadosLogin": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "admin@vinshare.test",
+            "minLength": 1
+          },
+          "senha": {
+            "type": "string",
+            "example": "Admin@123",
+            "maxLength": 72,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "email",
+          "senha"
+        ]
+      },
+      "DadosAtualizacaoVeiculo": {
+        "type": "object",
+        "properties": {
+          "modelo": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1
+          },
+          "versao": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1
+          },
+          "anoFabricacao": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2100,
+            "minimum": 1990
+          },
+          "anoModelo": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2100,
+            "minimum": 1990
+          },
+          "cor": {
+            "type": "string",
+            "example": "Cinza Carbonizado",
+            "maxLength": 50,
+            "minLength": 0
+          },
+          "combustivel": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0
+          },
+          "valorCompra": {
+            "type": "number"
+          },
+          "tipoVeiculo": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0
+          }
+        }
+      },
+      "DadosAtualizacaoUsuario": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1
+          },
+          "perfil": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "ANALISTA",
+              "CONCESSIONARIA"
+            ],
+            "example": "ANALISTA"
+          },
+          "concessionariaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ativo": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "DadosAtualizacaoServico": {
+        "type": "object",
+        "properties": {
+          "tipoServico": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1
+          },
+          "dataServico": {
+            "type": "string",
+            "format": "date"
+          },
+          "valorServico": {
+            "type": "number"
+          },
+          "garantiaAtiva": {
+            "type": "boolean"
+          },
+          "statusServico": {
+            "type": "string",
+            "enum": [
+              "AGENDADO",
+              "EM_ANDAMENTO",
+              "CONCLUIDO",
+              "CANCELADO"
+            ],
+            "example": "CONCLUIDO"
+          }
+        }
+      },
+      "DadosAtualizacaoConcessionaria": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "example": "Ford Paulista Centro - Matriz",
+            "maxLength": 255,
+            "minLength": 1
+          },
+          "regiao": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1
+          },
+          "cidade": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "estado": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$"
+          }
+        }
+      },
+      "DadosAtualizacaoCliente": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "novo.email@email.test"
+          },
+          "telefone": {
+            "type": "string",
+            "pattern": "^\\(?\\d{2}\\)?\\s?9?\\d{4}-?\\d{4}$"
+          },
+          "idade": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 120,
+            "minimum": 18
+          },
+          "sexo": {
+            "type": "string",
+            "pattern": "^[MFO]$"
+          },
+          "regiao": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "perfilCliente": {
+            "type": "string",
+            "enum": [
+              "FIEL",
+              "ABANDONO",
+              "ESQUECIDO",
+              "ECONOMICO"
+            ],
+            "example": "ECONOMICO"
+          }
+        }
+      },
+      "DashboardResponse": {
+        "type": "object",
+        "properties": {
+          "vinShareGeral": {
+            "$ref": "#/components/schemas/VinShareResponse"
+          },
+          "vinSharePorConcessionaria": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VinShareResponse"
+            }
+          },
+          "totalClientes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalVeiculosVendidos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalServicosConcluidos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "clientesEmRisco": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "receitaTotal": {
+            "type": "number"
+          }
+        }
+      },
+      "VinShareResponse": {
+        "type": "object",
+        "description": "VIN Share: percentual dos veículos vendidos que retornaram à rede oficial para ao menos um serviço concluído",
+        "properties": {
+          "concessionariaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "concessionariaNome": {
+            "type": "string"
+          },
+          "regiao": {
+            "type": "string"
+          },
+          "totalVeiculos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "veiculosComServico": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "veiculosSemServico": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "vinSharePercentual": {
+            "type": "number",
+            "format": "double"
+          },
+          "receitaTotalServicos": {
+            "type": "number"
+          }
+        }
+      },
+      "ClienteRiscoResponse": {
+        "type": "object",
+        "description": "Cliente com risco de evasão da rede oficial (0 ou 1 serviço concluído). CPF mascarado (LGPD).",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "cpfMascarado": {
+            "type": "string",
+            "example": "529.***.***-25"
+          },
+          "perfilCliente": {
+            "type": "string",
+            "enum": [
+              "FIEL",
+              "ABANDONO",
+              "ESQUECIDO",
+              "ECONOMICO"
+            ]
+          },
+          "regiao": {
+            "type": "string"
+          },
+          "concessionariaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "concessionariaNome": {
+            "type": "string"
+          },
+          "modeloVeiculo": {
+            "type": "string"
+          },
+          "vin": {
+            "type": "string"
+          },
+          "servicosConcluidos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nivelRisco": {
+            "type": "string",
+            "description": "ALTO: nenhum serviço concluído na rede; MEDIO: apenas um",
+            "enum": [
+              "ALTO",
+              "MEDIO"
+            ]
+          }
+        }
+      },
+      "PageMetadata": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PagedModelDadosListagemVeiculo": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DadosListagemVeiculo"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageMetadata"
+          }
+        }
+      },
+      "DadosListagemServico": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "clienteId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "veiculoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "concessionariaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tipoServico": {
+            "type": "string"
+          },
+          "dataServico": {
+            "type": "string",
+            "format": "date"
+          },
+          "valorServico": {
+            "type": "number"
+          },
+          "statusServico": {
+            "type": "string",
+            "enum": [
+              "AGENDADO",
+              "EM_ANDAMENTO",
+              "CONCLUIDO",
+              "CANCELADO"
+            ]
+          }
+        }
+      },
+      "PagedModelDadosDetalhamentoUsuario": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DadosDetalhamentoUsuario"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageMetadata"
+          }
+        }
+      },
+      "PagedModelDadosListagemServico": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DadosListagemServico"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageMetadata"
+          }
+        }
+      },
+      "DadosHealthCheck": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "versao": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PagedModelDadosListagemConcessionaria": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DadosListagemConcessionaria"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageMetadata"
+          }
+        }
+      },
+      "PagedModelDadosListagemCliente": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DadosListagemCliente"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageMetadata"
+          }
+        }
+      },
+      "Problema": {
+        "description": "Resposta de erro padronizada no formato Problem Details (RFC 9457), media type application/problem+json",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "https://github.com/FelipeMarquesdeOliveira/fiap-sprint-ford-soa/blob/main/docs/ERROS.md#recurso_nao_encontrado"
+          },
+          "title": {
+            "type": "string",
+            "example": "Recurso não encontrado"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "example": 404
+          },
+          "detail": {
+            "type": "string",
+            "example": "Concessionária 99 não encontrada"
+          },
+          "instance": {
+            "type": "string",
+            "example": "/concessionarias/99"
+          },
+          "codigo": {
+            "type": "string",
+            "description": "Código estável do erro, útil para tratamento no cliente",
+            "example": "RECURSO_NAO_ENCONTRADO"
+          },
+          "timestamp": {
+            "type": "string",
+            "example": "2026-09-25T10:15:30.123Z"
+          },
+          "erros": {
+            "type": "array",
+            "description": "Presente apenas em erros de validação (codigo DADOS_INVALIDOS)",
+            "items": {
+              "$ref": "#/components/schemas/CampoInvalido"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearer-jwt": {
+        "type": "http",
+        "description": "Access token obtido em POST /auth/login",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

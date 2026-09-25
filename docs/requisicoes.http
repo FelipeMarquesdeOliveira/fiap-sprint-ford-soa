@@ -1,0 +1,97 @@
+### Coleção de requisições (VS Code "REST Client" ou IntelliJ HTTP Client)
+### Suba a API (./mvnw spring-boot:run -Dspring-boot.run.profiles=dev) e execute na ordem.
+
+@baseUrl = http://localhost:8085
+
+### 1. Health check (público)
+GET {{baseUrl}}/health-check
+
+### 2. Concessionárias (público)
+GET {{baseUrl}}/concessionarias?estado=SP
+
+### 3. Endpoint protegido sem token -> 401 NAO_AUTENTICADO
+GET {{baseUrl}}/clientes
+
+### 4. Login ADMIN
+# @name loginAdmin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{ "email": "admin@vinshare.test", "senha": "Admin@123" }
+
+###
+@tokenAdmin = {{loginAdmin.response.body.accessToken}}
+@refreshAdmin = {{loginAdmin.response.body.refreshToken}}
+
+### 5. Dashboard de VIN Share (ADMIN / ANALISTA)
+GET {{baseUrl}}/vinshare/dashboard
+Authorization: Bearer {{tokenAdmin}}
+
+### 6. Criar concessionária (ADMIN) -> 201 + Location
+POST {{baseUrl}}/concessionarias
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{ "cnpj": "55.666.777/0001-81", "nome": "Ford Capixaba Vitória", "regiao": "Sudeste", "cidade": "Vitória", "estado": "ES" }
+
+### 7. Validação -> 400 DADOS_INVALIDOS com lista de campos
+POST {{baseUrl}}/concessionarias
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{ "cnpj": "11.222.333/0001-00", "nome": "", "regiao": "Sul", "estado": "rs" }
+
+### 8. Atualização parcial (PATCH)
+PATCH {{baseUrl}}/concessionarias/3
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{ "nome": "Ford Mineira Pampulha" }
+
+### 9. Renovar tokens (rotação)
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{ "refreshToken": "{{refreshAdmin}}" }
+
+### 10. Login CONCESSIONARIA (São Paulo)
+# @name loginSp
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{ "email": "concessionaria.sp@vinshare.test", "senha": "Conc@1234" }
+
+###
+@tokenSp = {{loginSp.response.body.accessToken}}
+
+### 11. Clientes: apenas os da própria concessionária
+GET {{baseUrl}}/clientes
+Authorization: Bearer {{tokenSp}}
+
+### 12. Cliente de outra concessionária -> 403 ACESSO_NEGADO
+GET {{baseUrl}}/clientes/4
+Authorization: Bearer {{tokenSp}}
+
+### 13. Dashboard da rede -> 403 (perfil CONCESSIONARIA)
+GET {{baseUrl}}/vinshare/dashboard
+Authorization: Bearer {{tokenSp}}
+
+### 14. Registrar revisão da cliente em risco (concessionária vem do token) -> 201
+POST {{baseUrl}}/servicos
+Authorization: Bearer {{tokenSp}}
+Content-Type: application/json
+
+{ "clienteId": 3, "veiculoId": 4, "tipoServico": "Revisão 10.000 km", "dataServico": "2026-09-20",
+  "valorServico": 950.00, "garantiaAtiva": true, "statusServico": "CONCLUIDO" }
+
+### 15. VIN Share da própria concessionária (sobe para 100%)
+GET {{baseUrl}}/vinshare/concessionarias/1
+Authorization: Bearer {{tokenSp}}
+
+### 16. Logout -> 204 (o token deixa de valer)
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{tokenSp}}
+
+### 17. Token após logout -> 401 TOKEN_REVOGADO
+GET {{baseUrl}}/usuarios/me
+Authorization: Bearer {{tokenSp}}
