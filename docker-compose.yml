@@ -1,0 +1,35 @@
+# Sobe o MySQL e a API:            docker compose up -d --build
+# Apenas o MySQL (API via Maven):  docker compose up -d mysql
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: vinshare-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: fiap
+      MYSQL_DATABASE: vinshare
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pfiap"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build: .
+    container_name: vinshare-api
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/vinshare?createDatabaseIfNotExist=true
+      DB_USERNAME: root
+      DB_PASSWORD: fiap
+      JWT_SECRET: ${JWT_SECRET:-troque-este-segredo-em-producao-minimo-32-bytes}
+    ports:
+      - "8085:8085"
+
+volumes:
+  mysql-data:
