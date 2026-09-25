@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main, sprint-3]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-e-testes:
+    name: Build e testes automatizados
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Compilar, testar e gerar cobertura (JaCoCo)
+        run: ./mvnw -B verify
+
+      - name: Resumo dos testes
+        if: always()
+        run: python3 scripts/relatorio_testes.py --resumo >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publicar relatórios (Surefire + JaCoCo)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: relatorios-de-teste
+          path: |
+            target/surefire-reports/
+            target/site/jacoco/

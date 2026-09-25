@@ -1,0 +1,60 @@
+$ ./mvnw -B clean verify   (JDK 25 / Maven 3.9 / macOS)
+...
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running TokenService - geração e validação de JWT
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.351 s -- in TokenService - geração e validação de JWT
+[INFO] Running Documentação OpenAPI / Swagger
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.860 s -- in Documentação OpenAPI / Swagger
+[INFO] Running Padronização das respostas de erro (Problem Details)
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.208 s -- in Padronização das respostas de erro (Problem Details)
+[INFO] Running Veículos - /veiculos
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.128 s -- in Veículos - /veiculos
+[INFO] Running Usuários - /usuarios (gestão restrita ao ADMIN)
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.247 s -- in Usuários - /usuarios (gestão restrita ao ADMIN)
+[INFO] Running Proteção de recursos com JWT
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.075 s -- in Proteção de recursos com JWT
+[INFO] Running VIN Share - /vinshare
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.087 s -- in VIN Share - /vinshare
+[INFO] Running Clientes - /clientes (escopo por concessionária)
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.090 s -- in Clientes - /clientes (escopo por concessionária)
+[INFO] Running Autorização por perfil (ADMIN, ANALISTA, CONCESSIONARIA)
+[INFO] Tests run: 36, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.127 s -- in Autorização por perfil (ADMIN, ANALISTA, CONCESSIONARIA)
+[INFO] Running Concessionárias - /concessionarias
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.048 s -- in Concessionárias - /concessionarias
+[INFO] Running Autenticação - /auth
+[INFO] Running POST /auth/logout
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.078 s -- in POST /auth/logout
+[INFO] Running POST /auth/login
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.254 s -- in POST /auth/login
+[INFO] Running POST /auth/refresh
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.140 s -- in POST /auth/refresh
+[INFO] Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.475 s -- in Autenticação - /auth
+[INFO] Running Serviços - /servicos (regras de negócio e escopo)
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.055 s -- in Serviços - /servicos (regras de negócio e escopo)
+[INFO] Running VinShareService - cálculo de VIN Share e clientes em risco
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.185 s -- in VinShareService - cálculo de VIN Share e clientes em risco
+[INFO] Running Regras de domínio
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in Regras de domínio
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 162, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jacoco:0.8.15:report (report) @ vinshare ---
+[INFO] Loading execution data file ./target/jacoco.exec
+[INFO] Analyzed bundle 'VIN Share API' with 73 classes
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ vinshare ---
+[INFO] Building jar: ./target/vinshare-3.0.0.jar
+[INFO] 
+[INFO] --- spring-boot:4.0.5:repackage (repackage) @ vinshare ---
+[INFO] Replacing main artifact ./target/vinshare-3.0.0.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+[INFO] The original artifact has been renamed to ./target/vinshare-3.0.0.jar.original
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  9.163 s
+[INFO] Finished at: 2026-09-25T02:00:46-03:00

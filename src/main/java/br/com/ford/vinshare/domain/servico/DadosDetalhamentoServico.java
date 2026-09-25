@@ -4,16 +4,19 @@ import br.com.ford.vinshare.domain.cliente.DadosListagemCliente;
 import br.com.ford.vinshare.domain.concessionaria.DadosListagemConcessionaria;
 import br.com.ford.vinshare.domain.veiculo.DadosListagemVeiculo;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 public record DadosDetalhamentoServico(
         Long id,
         DadosListagemCliente cliente,
         DadosListagemVeiculo veiculo,
         DadosListagemConcessionaria concessionaria,
         String tipoServico,
-        String dataServico,
-        Double valorServico,
+        LocalDate dataServico,
+        BigDecimal valorServico,
         Boolean garantiaAtiva,
-        String statusServico
+        StatusServico statusServico
 ) {
     public DadosDetalhamentoServico(Servico servico) {
         this(

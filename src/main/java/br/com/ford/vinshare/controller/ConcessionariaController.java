@@ -1,95 +1,94 @@
 package br.com.ford.vinshare.controller;
 
 import br.com.ford.vinshare.domain.concessionaria.*;
+import br.com.ford.vinshare.service.ConcessionariaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/concessionarias")
-@Tag(name = "Concessionárias", description = "Endpoints para gerenciamento de concessionárias Ford")
+@RequiredArgsConstructor
+@Tag(name = "Concessionárias")
 public class ConcessionariaController {
 
-    @Autowired
-    private ConcessionariaRepository repository;
-
-    @PostMapping
-    @Transactional
-    @Operation(summary = "Cadastrar concessionária", description = "Cadastra uma nova concessionária na rede Ford")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Concessionária criada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
-    })
-    public ResponseEntity<DadosDetalhamentoConcessionaria> cadastrarConcessionaria(
-            @RequestBody @Valid DadosCadastroConcessionaria dados,
-            UriComponentsBuilder uriBuilder) {
-        var concessionaria = dados.toEntity();
-        repository.save(concessionaria);
-        var uri = uriBuilder.path("/concessionarias/{id}").buildAndExpand(concessionaria.getId()).toUri();
-        return ResponseEntity.created(uri).body(new DadosDetalhamentoConcessionaria(concessionaria));
-    }
+    private final ConcessionariaService service;
 
     @GetMapping
-    @Operation(summary = "Listar concessionárias", description = "Lista todas as concessionárias ativas com paginação")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de concessionárias")
-    })
-    public ResponseEntity<Page<DadosListagemConcessionaria>> listarConcessionarias(Pageable paginacao) {
-        var page = repository.findAllByAtivoTrue(paginacao).map(DadosListagemConcessionaria::new);
-        return ResponseEntity.ok(page);
+    @SecurityRequirements
+    @Operation(summary = "Listar concessionárias", description = "Endpoint público: localização da rede oficial. Filtro opcional por UF.")
+    public ResponseEntity<PagedModel<DadosListagemConcessionaria>> listar(
+            @Parameter(description = "Sigla da UF (ex.: SP)") @RequestParam(required = false) String estado,
+            @ParameterObject @PageableDefault(size = 10, sort = "nome") Pageable paginacao) {
+        return ResponseEntity.ok(new PagedModel<>(service.listar(estado, paginacao)));
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar concessionária por ID", description = "Retorna os detalhes de uma concessionária específica")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Concessionária encontrada"),
-            @ApiResponse(responseCode = "404", description = "Concessionária não encontrada")
-    })
-    public ResponseEntity<DadosDetalhamentoConcessionaria> listarConcessionariaPorId(
+    @SecurityRequirements
+    @Operation(summary = "Detalhar concessionária", description = "Endpoint público.")
+    @ApiResponse(responseCode = "404", description = "Concessionária não encontrada")
+    public ResponseEntity<DadosDetalhamentoConcessionaria> detalhar(
             @Parameter(description = "ID da concessionária") @PathVariable Long id) {
-        var concessionaria = repository.findById(id)
-                .orElseThrow(() -> new ConcessionariaNotFoundException("Concessionária não encontrada"));
-        return ResponseEntity.ok(new DadosDetalhamentoConcessionaria(concessionaria));
+        return ResponseEntity.ok(service.detalhar(id));
     }
 
-    @PutMapping
-    @Transactional
-    @Operation(summary = "Atualizar concessionária", description = "Atualiza os dados de uma concessionária existente")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Concessionária atualizada"),
-            @ApiResponse(responseCode = "404", description = "Concessionária não encontrada")
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Cadastrar concessionária", description = "Perfil: ADMIN.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Concessionária criada (header Location aponta para o recurso)"),
+            @ApiResponse(responseCode = "409", description = "CNPJ já cadastrado")
     })
-    public ResponseEntity<DadosDetalhamentoConcessionaria> atualizarConcessionaria(
-            @RequestBody @Valid DadosAtualizacaoConcessionaria dados) {
-        var concessionaria = repository.findById(dados.id())
-                .orElseThrow(() -> new ConcessionariaNotFoundException("Concessionária não encontrada"));
-        dados.atualizarInformacoes(concessionaria);
-        return ResponseEntity.ok(new DadosDetalhamentoConcessionaria(concessionaria));
+    public ResponseEntity<DadosDetalhamentoConcessionaria> cadastrar(@RequestBody @Valid DadosCadastroConcessionaria dados,
+                                                                     UriComponentsBuilder uriBuilder) {
+        var concessionaria = service.cadastrar(dados);
+        var uri = uriBuilder.path("/concessionarias/{id}").buildAndExpand(concessionaria.id()).toUri();
+        return ResponseEntity.created(uri).body(concessionaria);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Substituir concessionária", description = "Perfil: ADMIN. PUT exige a representação completa do recurso.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "404", description = "Concessionária não encontrada"),
+            @ApiResponse(responseCode = "409", description = "CNPJ pertence a outra concessionária")
+    })
+    public ResponseEntity<DadosDetalhamentoConcessionaria> substituir(@PathVariable Long id,
+                                                                      @RequestBody @Valid DadosCadastroConcessionaria dados) {
+        return ResponseEntity.ok(service.substituir(id, dados));
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Atualizar concessionária parcialmente", description = "Perfil: ADMIN. Apenas os campos enviados são alterados.")
+    @ApiResponse(responseCode = "404", description = "Concessionária não encontrada")
+    public ResponseEntity<DadosDetalhamentoConcessionaria> atualizar(@PathVariable Long id,
+                                                                     @RequestBody @Valid DadosAtualizacaoConcessionaria dados) {
+        return ResponseEntity.ok(service.atualizar(id, dados));
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Transactional
-    @Operation(summary = "Excluir concessionária", description = "Realiza soft delete de uma concessionária")
-    @ApiResponses(value = {
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Excluir concessionária", description = "Perfil: ADMIN. Exclusão lógica (o histórico é preservado).")
+    @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Concessionária excluída"),
             @ApiResponse(responseCode = "404", description = "Concessionária não encontrada")
     })
-    public void excluirConcessionaria(
-            @Parameter(description = "ID da concessionária") @PathVariable Long id) {
-        var concessionaria = repository.findById(id)
-                .orElseThrow(() -> new ConcessionariaNotFoundException("Concessionária não encontrada"));
-        concessionaria.excluir();
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        service.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 }

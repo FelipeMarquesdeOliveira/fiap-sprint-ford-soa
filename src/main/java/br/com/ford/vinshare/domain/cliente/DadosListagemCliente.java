@@ -6,8 +6,9 @@ public record DadosListagemCliente(
         Long id,
         String cpf,
         String nome,
-        String perfilCliente,
+        PerfilCliente perfilCliente,
         String regiao,
+        Long concessionariaId,
         DadosListagemVeiculo veiculo
 ) {
     public DadosListagemCliente(Cliente cliente) {
@@ -17,6 +18,7 @@ public record DadosListagemCliente(
                 cliente.getNome(),
                 cliente.getPerfilCliente(),
                 cliente.getRegiao(),
+                cliente.getConcessionariaId(),
                 cliente.getVeiculo() != null ? new DadosListagemVeiculo(cliente.getVeiculo()) : null
         );
     }
